@@ -1,4 +1,4 @@
-# Stock.io - Investment Mobile App
+# Stock.io
 
 Android investment application built with Jetpack Compose for portfolio management and market analysis.
 
@@ -44,7 +44,7 @@ cd stockio-mobile-app
    - Connect an Android device or start an emulator
    - Click the "Run" button
 
-## 📁 Project Structure
+## Project Structure
 
 ```
 app/src/main/java/com/example/stockio/
@@ -60,21 +60,13 @@ app/src/main/java/com/example/stockio/
 │   └── shared/                 # Shared components
 ```
 
-## 🎨 Key Components
+## Key Components
 
 ### Investment Assets
-- Stocks (BBCA, BBRI)
-- Cryptocurrencies (Bitcoin)
-- Gold (24K)
-- Mutual Funds
+- IHSG Stocks 
+- Cryptocurrencies 
 
-### Navigation
-- **Home**: Portfolio overview and quick actions
-- **Market**: Browse and purchase assets
-- **Portfolio**: Manage existing investments
-- **Profile**: User account settings
-
-## 🔧 Build & Run
+## Build & Run
 
 ```bash
 # Debug build

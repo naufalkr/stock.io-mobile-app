@@ -1,146 +1,248 @@
 package com.example.stockio.components.screens
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Clear
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.example.stockio.components.cards.MarketAssetCard
 import com.example.stockio.model.*
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ModernMarketScreen(
     marketAssets: List<InvestmentAsset>,
     onAssetClick: (InvestmentAsset) -> Unit
 ) {
-    var selectedCategory by remember { mutableStateOf<AssetCategory?>(null) }
+    var selectedCategory by remember { mutableStateOf(AssetCategory.IHSG) }
+    var searchQuery by remember { mutableStateOf("") }
     
-    val filteredAssets = if (selectedCategory != null) {
-        marketAssets.filter { it.category == selectedCategory }
-    } else {
-        marketAssets
+    val filteredAssets = marketAssets.filter { asset ->
+        asset.category == selectedCategory && 
+        (searchQuery.isEmpty() || 
+         asset.name.contains(searchQuery, ignoreCase = true) ||
+         asset.code.contains(searchQuery, ignoreCase = true))
     }
     
-    LazyColumn(
+    Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(20.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp)
+            .background(BackgroundGray)
+            .padding(20.dp)
     ) {
-        item {
+        // Header
+        Text(
+            "Pasar Investasi",
+            style = MaterialTheme.typography.headlineMedium.copy(
+                fontWeight = FontWeight.Bold,
+                color = TextPrimary
+            ),
+            modifier = Modifier.padding(bottom = 20.dp)
+        )
+        
+        // Search Bar
+        SearchBar(
+            searchQuery = searchQuery,
+            onSearchQueryChange = { searchQuery = it },
+            modifier = Modifier.padding(bottom = 20.dp)
+        )
+        
+        // Category Tabs
+        ModernCategoryTabs(
+            selectedCategory = selectedCategory,
+            onCategorySelected = { selectedCategory = it },
+            modifier = Modifier.padding(bottom = 20.dp)
+        )
+        
+        // Asset List
+        LazyColumn(
+            verticalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            items(filteredAssets) { asset ->
+                MarketAssetCard(
+                    asset = asset,
+                    onClick = { onAssetClick(asset) }
+                )
+            }
+            
+            if (filteredAssets.isEmpty()) {
+                item {
+                    EmptyState(
+                        searchQuery = searchQuery,
+                        category = selectedCategory
+                    )
+                }
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun SearchBar(
+    searchQuery: String,
+    onSearchQueryChange: (String) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    OutlinedTextField(
+        value = searchQuery,
+        onValueChange = onSearchQueryChange,
+        modifier = modifier.fillMaxWidth(),
+        placeholder = {
             Text(
-                "Pasar Investasi",
-                style = MaterialTheme.typography.headlineMedium.copy(
-                    fontWeight = FontWeight.Bold,
-                    color = TextPrimary
-                ),
-                modifier = Modifier.padding(vertical = 8.dp)
+                "Cari saham atau crypto...",
+                style = MaterialTheme.typography.bodyMedium.copy(
+                    color = TextSecondary
+                )
             )
-        }
-
-        item {
-            CategoryFilter(
-                selectedCategory = selectedCategory,
-                onCategorySelected = { selectedCategory = it }
+        },
+        leadingIcon = {
+            Icon(
+                Icons.Filled.Search,
+                contentDescription = "Search",
+                tint = TextSecondary
             )
-        }
+        },
+        trailingIcon = {
+            if (searchQuery.isNotEmpty()) {
+                Icon(
+                    Icons.Filled.Clear,
+                    contentDescription = "Clear",
+                    tint = TextSecondary,
+                    modifier = Modifier.clickable {
+                        onSearchQueryChange("")
+                    }
+                )
+            }
+        },
+        shape = RoundedCornerShape(16.dp),
+        colors = OutlinedTextFieldDefaults.colors(
+            focusedBorderColor = PrimaryBlue,
+            unfocusedBorderColor = DividerGray,
+            focusedContainerColor = CardWhite,
+            unfocusedContainerColor = CardWhite
+        ),
+        singleLine = true
+    )
+}
 
-        items(filteredAssets) { asset ->
-            MarketAssetCard(
-                asset = asset,
-                onClick = { onAssetClick(asset) }
+@Composable
+fun ModernCategoryTabs(
+    selectedCategory: AssetCategory,
+    onCategorySelected: (AssetCategory) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Card(
+        modifier = modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(containerColor = CardWhite),
+        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+        shape = RoundedCornerShape(16.dp)
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(4.dp)
+        ) {
+            CategoryTab(
+                text = "IHSG",
+                isSelected = selectedCategory == AssetCategory.IHSG,
+                onClick = { onCategorySelected(AssetCategory.IHSG) },
+                modifier = Modifier.weight(1f)
+            )
+            
+            CategoryTab(
+                text = "Crypto",
+                isSelected = selectedCategory == AssetCategory.CRYPTO,
+                onClick = { onCategorySelected(AssetCategory.CRYPTO) },
+                modifier = Modifier.weight(1f)
             )
         }
     }
 }
 
 @Composable
-fun CategoryFilter(
-    selectedCategory: AssetCategory?,
-    onCategorySelected: (AssetCategory?) -> Unit
+fun CategoryTab(
+    text: String,
+    isSelected: Boolean,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
 ) {
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.spacedBy(12.dp)
+    val backgroundColor = if (isSelected) {
+        if (text == "IHSG") PrimaryBlue else Orange40
+    } else {
+        Color.Transparent
+    }
+    
+    val textColor = if (isSelected) {
+        Color.White
+    } else {
+        TextSecondary
+    }
+    
+    Box(
+        modifier = modifier
+            .background(
+                color = backgroundColor,
+                shape = RoundedCornerShape(12.dp)
+            )
+            .clickable { onClick() }
+            .padding(vertical = 12.dp),
+        contentAlignment = Alignment.Center
     ) {
-        // All button
-        FilterChip(
-            selected = selectedCategory == null,
-            onClick = { onCategorySelected(null) },
-            label = {
-                Text(
-                    text = "All",
-                    style = MaterialTheme.typography.bodyMedium.copy(
-                        fontWeight = FontWeight.Medium
-                    )
-                )
+        Text(
+            text = text,
+            style = MaterialTheme.typography.titleMedium.copy(
+                fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
+                color = textColor
+            )
+        )
+    }
+}
+
+@Composable
+fun EmptyState(
+    searchQuery: String,
+    category: AssetCategory
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(40.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text(
+            text = if (searchQuery.isEmpty()) {
+                "Belum ada data untuk kategori ${category.name}"
+            } else {
+                "Tidak ditemukan hasil untuk \"$searchQuery\""
             },
-            colors = FilterChipDefaults.filterChipColors(
-                selectedContainerColor = PrimaryBlue,
-                selectedLabelColor = androidx.compose.ui.graphics.Color.White,
-                containerColor = androidx.compose.ui.graphics.Color.Transparent,
-                labelColor = TextSecondary
-            ),
-            border = FilterChipDefaults.filterChipBorder(
-                enabled = true,
-                selected = selectedCategory == null,
-                borderColor = if (selectedCategory == null) PrimaryBlue else DividerGray,
-                selectedBorderColor = PrimaryBlue
+            style = MaterialTheme.typography.bodyLarge.copy(
+                color = TextSecondary,
+                fontWeight = FontWeight.Medium
             )
         )
         
-        // Stock button
-        FilterChip(
-            selected = selectedCategory == AssetCategory.STOCK,
-            onClick = { onCategorySelected(AssetCategory.STOCK) },
-            label = {
-                Text(
-                    text = "Stocks",
-                    style = MaterialTheme.typography.bodyMedium.copy(
-                        fontWeight = FontWeight.Medium
-                    )
-                )
-            },
-            colors = FilterChipDefaults.filterChipColors(
-                selectedContainerColor = PrimaryBlue,
-                selectedLabelColor = androidx.compose.ui.graphics.Color.White,
-                containerColor = androidx.compose.ui.graphics.Color.Transparent,
-                labelColor = TextSecondary
-            ),
-            border = FilterChipDefaults.filterChipBorder(
-                enabled = true,
-                selected = selectedCategory == AssetCategory.STOCK,
-                borderColor = if (selectedCategory == AssetCategory.STOCK) PrimaryBlue else DividerGray,
-                selectedBorderColor = PrimaryBlue
-            )
-        )
+        Spacer(modifier = Modifier.height(8.dp))
         
-        // Crypto button
-        FilterChip(
-            selected = selectedCategory == AssetCategory.CRYPTO,
-            onClick = { onCategorySelected(AssetCategory.CRYPTO) },
-            label = {
-                Text(
-                    text = "Crypto",
-                    style = MaterialTheme.typography.bodyMedium.copy(
-                        fontWeight = FontWeight.Medium
-                    )
-                )
+        Text(
+            text = if (searchQuery.isEmpty()) {
+                "Data akan segera ditambahkan"
+            } else {
+                "Coba kata kunci yang berbeda"
             },
-            colors = FilterChipDefaults.filterChipColors(
-                selectedContainerColor = Orange40,
-                selectedLabelColor = androidx.compose.ui.graphics.Color.White,
-                containerColor = androidx.compose.ui.graphics.Color.Transparent,
-                labelColor = TextSecondary
-            ),
-            border = FilterChipDefaults.filterChipBorder(
-                enabled = true,
-                selected = selectedCategory == AssetCategory.CRYPTO,
-                borderColor = if (selectedCategory == AssetCategory.CRYPTO) Orange40 else DividerGray,
-                selectedBorderColor = Orange40
+            style = MaterialTheme.typography.bodyMedium.copy(
+                color = TextSecondary
             )
         )
     }

@@ -174,15 +174,14 @@ fun AssetHeaderCard(asset: InvestmentAsset) {
                         text = "$changeText${String.format("%.2f", asset.priceChangePercent)}%",
                         style = MaterialTheme.typography.bodyMedium.copy(
                             fontWeight = FontWeight.Medium,
-                            color = changeColor
-                        )
+                            color = changeColor                        )
                     )
                 }
                 
                 Box(
                     modifier = Modifier
                         .background(
-                            color = if (asset.category == AssetCategory.STOCK) PrimaryBlue else Orange40,
+                            color = if (asset.category == AssetCategory.IHSG) PrimaryBlue else Orange40,
                             shape = RoundedCornerShape(20.dp)
                         )
                         .padding(horizontal = 12.dp, vertical = 6.dp)
@@ -238,9 +237,9 @@ fun ChartCard(
                     )
                 }
             }
+              Spacer(modifier = Modifier.height(20.dp))
             
-            Spacer(modifier = Modifier.height(20.dp))
-              // Chart
+            // Chart
             PriceChart(
                 priceHistory = asset.priceHistory.takeLast(selectedPeriod.days),
                 modifier = Modifier
@@ -301,8 +300,7 @@ fun PriceChart(
 
 fun DrawScope.drawPriceChart(priceHistory: List<Double>, color: Color) {
     if (priceHistory.size < 2) return
-    
-    val minPrice = priceHistory.minOrNull() ?: 0.0
+      val minPrice = priceHistory.minOrNull() ?: 0.0
     val maxPrice = priceHistory.maxOrNull() ?: 1.0
     val priceRange = if (maxPrice > minPrice) maxPrice - minPrice else 1.0
     
@@ -310,7 +308,8 @@ fun DrawScope.drawPriceChart(priceHistory: List<Double>, color: Color) {
     val path = Path()
     val stepX = size.width / (priceHistory.size - 1)
     val points = mutableListOf<Offset>()
-      // Generate points
+    
+    // Generate points
     priceHistory.forEachIndexed { index, price ->
         val x = index * stepX
         val y = size.height - ((price - minPrice) / priceRange * size.height * 0.8f) - size.height * 0.1f
@@ -404,10 +403,10 @@ fun DrawScope.drawPriceChart(priceHistory: List<Double>, color: Color) {
             pathEffect = androidx.compose.ui.graphics.PathEffect.cornerPathEffect(8.dp.toPx())
         )
     )
-    
-    // Draw data points
+      // Draw data points
     points.forEachIndexed { index, point ->
-        if (index % (points.size / 8).coerceAtLeast(1) == 0 || index == points.size - 1) {            // Outer circle (shadow)
+        if (index % (points.size / 8).coerceAtLeast(1) == 0 || index == points.size - 1) {
+            // Outer circle (shadow)
             drawCircle(
                 color = Color.Black.copy(alpha = 0.1f),
                 radius = 6.dp.toPx(),
@@ -448,13 +447,12 @@ fun AssetInfoCard(asset: InvestmentAsset) {
                     color = TextPrimary
                 )
             )
-            
-            Spacer(modifier = Modifier.height(16.dp))
+              Spacer(modifier = Modifier.height(16.dp))
             
             InfoRow("Market Cap", formatCurrencyShort(asset.marketCap))
             InfoRow("Volume", NumberFormat.getNumberInstance(Locale.US).format(asset.volume))
             InfoRow(
-                if (asset.category == AssetCategory.STOCK) "IPO Date" else "Launch Date",
+                if (asset.category == AssetCategory.IHSG) "IPO Date" else "Launch Date",
                 asset.ipoDate
             )
             InfoRow("Category", asset.category.name)

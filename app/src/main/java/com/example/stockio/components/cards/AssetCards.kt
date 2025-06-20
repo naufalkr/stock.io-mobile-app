@@ -3,200 +3,267 @@ package com.example.stockio.components.cards
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.example.stockio.model.*
-import java.text.NumberFormat
-import java.util.Locale
+import java.text.DecimalFormat
 
 @Composable
 fun MarketAssetCard(
     asset: InvestmentAsset,
-    onClick: () -> Unit
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
 ) {
-    val currencyFormat = remember { NumberFormat.getCurrencyInstance(Locale("id", "ID")) }
-    val priceChangeColor = if (asset.priceChangePercent >= 0) Green40 else Red40
-    val priceChangeIcon = if (asset.priceChangePercent >= 0) Icons.Filled.ArrowUpward else Icons.Filled.ArrowDownward
-
     Card(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
-            .clickable(onClick = onClick),
-        shape = RoundedCornerShape(16.dp),
+            .clickable { onClick() },
         colors = CardDefaults.cardColors(containerColor = CardWhite),
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
     ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(20.dp),
+                .padding(16.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Box(
-                modifier = Modifier
-                    .size(48.dp)
-                    .background(
-                        brush = Brush.radialGradient(
-                            colors = listOf(
-                                asset.color.copy(alpha = 0.3f),
-                                asset.color.copy(alpha = 0.1f)
-                            )
+            Row(
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Box(
+                    modifier = Modifier
+                        .size(48.dp)
+                        .background(
+                            color = asset.color.copy(alpha = 0.1f),
+                            shape = RoundedCornerShape(12.dp)
                         ),
-                        shape = CircleShape
-                    ),
-                contentAlignment = Alignment.Center
-            ) {
-                Icon(
-                    imageVector = asset.icon,
-                    contentDescription = asset.name,
-                    tint = asset.color,
-                    modifier = Modifier.size(24.dp)
-                )
-            }
-
-            Spacer(modifier = Modifier.width(16.dp))
-
-            Column(
-                modifier = Modifier.weight(1f)
-            ) {
-                Text(
-                    asset.name,
-                    style = MaterialTheme.typography.titleMedium.copy(
-                        fontWeight = FontWeight.Bold,
-                        color = TextPrimary
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        imageVector = asset.icon,
+                        contentDescription = null,
+                        tint = asset.color,
+                        modifier = Modifier.size(24.dp)
                     )
-                )
-                Text(
-                    asset.code,
-                    style = MaterialTheme.typography.bodyMedium.copy(
-                        color = TextSecondary
+                }
+
+                Spacer(modifier = Modifier.width(12.dp))
+
+                Column {
+                    Text(
+                        text = asset.code,
+                        style = MaterialTheme.typography.titleMedium.copy(
+                            fontWeight = FontWeight.Bold,
+                            color = TextPrimary
+                        )
                     )
-                )
+                    Text(
+                        text = asset.name,
+                        style = MaterialTheme.typography.bodyMedium.copy(
+                            color = TextSecondary
+                        )
+                    )
+                }
             }
 
             Column(
                 horizontalAlignment = Alignment.End
             ) {
                 Text(
-                    currencyFormat.format(asset.currentPrice),
+                    text = formatPrice(asset.currentPrice),
                     style = MaterialTheme.typography.titleMedium.copy(
                         fontWeight = FontWeight.Bold,
                         color = TextPrimary
                     )
                 )
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier
-                        .background(
-                            priceChangeColor.copy(alpha = 0.1f),
-                            shape = RoundedCornerShape(12.dp)
-                        )
-                        .padding(horizontal = 8.dp, vertical = 4.dp)
-                ) {
-                    Icon(
-                        imageVector = priceChangeIcon,
-                        contentDescription = "Price Change",
-                        tint = priceChangeColor,
-                        modifier = Modifier.size(12.dp)
+
+                val changeColor = if (asset.priceChangePercent >= 0) Green40 else Red40
+                val changeText = if (asset.priceChangePercent >= 0) "+" else ""
+
+                Text(
+                    text = "$changeText${String.format("%.2f", asset.priceChangePercent)}%",
+                    style = MaterialTheme.typography.bodyMedium.copy(
+                        fontWeight = FontWeight.Medium,
+                        color = changeColor
                     )
-                    Spacer(modifier = Modifier.width(4.dp))
-                    Text(
-                        "${String.format("%.2f", asset.priceChangePercent)}%",
-                        style = MaterialTheme.typography.bodySmall.copy(
-                            color = priceChangeColor,
-                            fontWeight = FontWeight.Medium
-                        )
-                    )
-                }
+                )
             }
         }
     }
 }
 
 @Composable
-fun PortfolioAssetCard(asset: InvestmentAsset) {
-    val currencyFormat = remember { NumberFormat.getCurrencyInstance(Locale("id", "ID")) }
-    val totalValue = asset.currentPrice * asset.quantity
-    val priceChangeColor = if (asset.priceChangePercent >= 0) Green40 else Red40
-
+fun PortfolioAssetCard(
+    asset: InvestmentAsset,
+    onClick: () -> Unit = {},
+    modifier: Modifier = Modifier
+) {
     Card(
-        modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(16.dp),
+        modifier = modifier
+            .fillMaxWidth()
+            .clickable { onClick() },
         colors = CardDefaults.cardColors(containerColor = CardWhite),
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
     ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(20.dp),
+                .padding(16.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Box(
-                modifier = Modifier
-                    .size(48.dp)
-                    .background(
-                        brush = Brush.radialGradient(
-                            colors = listOf(
-                                asset.color.copy(alpha = 0.3f),
-                                asset.color.copy(alpha = 0.1f)
-                            )
+            Row(
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Box(
+                    modifier = Modifier
+                        .size(48.dp)
+                        .background(
+                            color = asset.color.copy(alpha = 0.1f),
+                            shape = RoundedCornerShape(12.dp)
                         ),
-                        shape = CircleShape
-                    ),
-                contentAlignment = Alignment.Center
-            ) {
-                Icon(
-                    imageVector = asset.icon,
-                    contentDescription = asset.name,
-                    tint = asset.color,
-                    modifier = Modifier.size(24.dp)
-                )
-            }
-
-            Spacer(modifier = Modifier.width(16.dp))
-
-            Column(
-                modifier = Modifier.weight(1f)
-            ) {
-                Text(
-                    asset.name,
-                    style = MaterialTheme.typography.titleMedium.copy(
-                        fontWeight = FontWeight.Bold,
-                        color = TextPrimary
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        imageVector = asset.icon,
+                        contentDescription = null,
+                        tint = asset.color,
+                        modifier = Modifier.size(24.dp)
                     )
-                )
-                Text(
-                    "${asset.quantity} ${asset.code}",
-                    style = MaterialTheme.typography.bodyMedium.copy(
-                        color = TextSecondary
+                }
+
+                Spacer(modifier = Modifier.width(12.dp))
+
+                Column {
+                    Text(
+                        text = asset.code,
+                        style = MaterialTheme.typography.titleMedium.copy(
+                            fontWeight = FontWeight.Bold,
+                            color = TextPrimary
+                        )
                     )
-                )
+                    Text(
+                        text = "${asset.quantity} lots",
+                        style = MaterialTheme.typography.bodyMedium.copy(
+                            color = TextSecondary
+                        )
+                    )
+                }
             }
 
             Column(
                 horizontalAlignment = Alignment.End
             ) {
                 Text(
-                    currencyFormat.format(totalValue),
+                    text = formatPrice(asset.currentPrice * asset.quantity),
                     style = MaterialTheme.typography.titleMedium.copy(
                         fontWeight = FontWeight.Bold,
                         color = TextPrimary
                     )
                 )
+
+                val changeColor = if (asset.priceChangePercent >= 0) Green40 else Red40
+                val changeText = if (asset.priceChangePercent >= 0) "+" else ""
+
                 Text(
-                    "${String.format("%.2f", asset.priceChangePercent)}%",
+                    text = "$changeText${String.format("%.2f", asset.priceChangePercent)}%",
                     style = MaterialTheme.typography.bodyMedium.copy(
-                        color = priceChangeColor,
-                        fontWeight = FontWeight.Medium
+                        fontWeight = FontWeight.Medium,
+                        color = changeColor
+                    )
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun HomeAssetCard(
+    asset: InvestmentAsset,
+    onClick: () -> Unit = {},
+    modifier: Modifier = Modifier
+) {
+    Card(
+        modifier = modifier
+            .fillMaxWidth()
+            .clickable { onClick() },
+        colors = CardDefaults.cardColors(containerColor = CardWhite),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(12.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Box(
+                    modifier = Modifier
+                        .size(40.dp)
+                        .background(
+                            color = asset.color.copy(alpha = 0.1f),
+                            shape = RoundedCornerShape(10.dp)
+                        ),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        imageVector = asset.icon,
+                        contentDescription = null,
+                        tint = asset.color,
+                        modifier = Modifier.size(20.dp)
+                    )
+                }
+
+                Spacer(modifier = Modifier.width(10.dp))
+
+                Column {
+                    Text(
+                        text = asset.code,
+                        style = MaterialTheme.typography.bodyLarge.copy(
+                            fontWeight = FontWeight.Bold,
+                            color = TextPrimary
+                        )
+                    )
+                    Text(
+                        text = asset.name,
+                        style = MaterialTheme.typography.bodySmall.copy(
+                            color = TextSecondary
+                        ),
+                        maxLines = 1
+                    )
+                }
+            }
+
+            Column(
+                horizontalAlignment = Alignment.End
+            ) {
+                Text(
+                    text = formatPrice(asset.currentPrice),
+                    style = MaterialTheme.typography.bodyLarge.copy(
+                        fontWeight = FontWeight.Bold,
+                        color = TextPrimary
+                    )
+                )
+
+                val changeColor = if (asset.priceChangePercent >= 0) Green40 else Red40
+                val changeText = if (asset.priceChangePercent >= 0) "+" else ""
+
+                Text(
+                    text = "$changeText${String.format("%.2f", asset.priceChangePercent)}%",
+                    style = MaterialTheme.typography.bodySmall.copy(
+                        fontWeight = FontWeight.Medium,
+                        color = changeColor
                     )
                 )
             }
@@ -207,98 +274,143 @@ fun PortfolioAssetCard(asset: InvestmentAsset) {
 @Composable
 fun PortfolioAssetWithActionCard(
     asset: InvestmentAsset,
-    onSell: () -> Unit
+    onSell: () -> Unit,
+    modifier: Modifier = Modifier
 ) {
-    val currencyFormat = remember { NumberFormat.getCurrencyInstance(Locale("id", "ID")) }
-    val totalValue = asset.currentPrice * asset.quantity
-    val priceChangeColor = if (asset.priceChangePercent >= 0) Green40 else Red40
-
     Card(
-        modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(16.dp),
+        modifier = modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(containerColor = CardWhite),
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
     ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(20.dp),
-            verticalAlignment = Alignment.CenterVertically
+        Column(
+            modifier = Modifier.padding(16.dp)
         ) {
-            Box(
-                modifier = Modifier
-                    .size(48.dp)
-                    .background(
-                        asset.color.copy(alpha = 0.2f),
-                        shape = CircleShape
-                    ),
-                contentAlignment = Alignment.Center
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                Icon(
-                    imageVector = asset.icon,
-                    contentDescription = asset.name,
-                    tint = asset.color,
-                    modifier = Modifier.size(24.dp)
-                )
+                Row(
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .size(48.dp)
+                            .background(
+                                color = asset.color.copy(alpha = 0.1f),
+                                shape = RoundedCornerShape(12.dp)
+                            ),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            imageVector = asset.icon,
+                            contentDescription = null,
+                            tint = asset.color,
+                            modifier = Modifier.size(24.dp)
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.width(12.dp))
+
+                    Column {
+                        Text(
+                            text = asset.code,
+                            style = MaterialTheme.typography.titleMedium.copy(
+                                fontWeight = FontWeight.Bold,
+                                color = TextPrimary
+                            )
+                        )
+                        Text(
+                            text = "${asset.quantity} lots",
+                            style = MaterialTheme.typography.bodyMedium.copy(
+                                color = TextSecondary
+                            )
+                        )
+                    }
+                }
+
+                Column(
+                    horizontalAlignment = Alignment.End
+                ) {
+                    Text(
+                        text = formatPrice(asset.currentPrice * asset.quantity),
+                        style = MaterialTheme.typography.titleMedium.copy(
+                            fontWeight = FontWeight.Bold,
+                            color = TextPrimary
+                        )
+                    )
+
+                    val changeColor = if (asset.priceChangePercent >= 0) Green40 else Red40
+                    val changeText = if (asset.priceChangePercent >= 0) "+" else ""
+
+                    Text(
+                        text = "$changeText${String.format("%.2f", asset.priceChangePercent)}%",
+                        style = MaterialTheme.typography.bodyMedium.copy(
+                            fontWeight = FontWeight.Medium,
+                            color = changeColor
+                        )
+                    )
+                }
             }
 
-            Spacer(modifier = Modifier.width(16.dp))
+            Spacer(modifier = Modifier.height(12.dp))
 
-            Column(
-                modifier = Modifier.weight(1f)
+            Button(
+                onClick = onSell,
+                modifier = Modifier.fillMaxWidth(),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Red40,
+                    contentColor = Color.White
+                ),
+                shape = RoundedCornerShape(8.dp)
             ) {
                 Text(
-                    asset.name,
-                    style = MaterialTheme.typography.titleMedium.copy(
-                        fontWeight = FontWeight.Bold,
-                        color = TextPrimary
-                    )
-                )
-                Text(
-                    "${asset.quantity} ${asset.code}",
+                    text = "Jual Aset",
                     style = MaterialTheme.typography.bodyMedium.copy(
-                        color = TextSecondary
-                    )
-                )
-            }
-
-            Column(
-                horizontalAlignment = Alignment.End
-            ) {
-                Text(
-                    currencyFormat.format(totalValue),
-                    style = MaterialTheme.typography.titleMedium.copy(
-                        fontWeight = FontWeight.Bold,
-                        color = TextPrimary
-                    )
-                )
-                Text(
-                    "${String.format("%.2f", asset.priceChangePercent)}%",
-                    style = MaterialTheme.typography.bodyMedium.copy(
-                        color = priceChangeColor,
                         fontWeight = FontWeight.Medium
                     )
                 )
             }
-
-            Spacer(modifier = Modifier.width(8.dp))
-
-            IconButton(
-                onClick = onSell,
-                modifier = Modifier
-                    .size(40.dp)
-                    .background(
-                        Red40.copy(alpha = 0.1f),
-                        shape = CircleShape
-                    )
-            ) {
-                Icon(
-                    imageVector = Icons.Filled.Delete,
-                    contentDescription = "Jual",
-                    tint = Red40,
-                    modifier = Modifier.size(20.dp)
-                )
-            }
         }
     }
+}
+
+@Composable
+fun EmptyPortfolioCard(
+    modifier: Modifier = Modifier
+) {
+    Card(
+        modifier = modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(containerColor = CardWhite),
+        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(40.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Text(
+                text = "Portofolio Kosong",
+                style = MaterialTheme.typography.titleLarge.copy(
+                    fontWeight = FontWeight.Bold,
+                    color = TextPrimary
+                )
+            )
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            Text(
+                text = "Anda belum memiliki aset investasi. Mulai berinvestasi dengan mengunjungi halaman Pasar.",                style = MaterialTheme.typography.bodyMedium.copy(
+                    color = TextSecondary
+                ),
+                textAlign = TextAlign.Center
+            )
+        }
+    }
+}
+
+private fun formatPrice(price: Double): String {
+    val formatter = DecimalFormat("#,###")
+    return "Rp ${formatter.format(price)}"
 }
