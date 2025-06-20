@@ -16,6 +16,14 @@ fun ModernMarketScreen(
     marketAssets: List<InvestmentAsset>,
     onAssetClick: (InvestmentAsset) -> Unit
 ) {
+    var selectedCategory by remember { mutableStateOf<AssetCategory?>(null) }
+    
+    val filteredAssets = if (selectedCategory != null) {
+        marketAssets.filter { it.category == selectedCategory }
+    } else {
+        marketAssets
+    }
+    
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
@@ -33,11 +41,107 @@ fun ModernMarketScreen(
             )
         }
 
-        items(marketAssets) { asset ->
+        item {
+            CategoryFilter(
+                selectedCategory = selectedCategory,
+                onCategorySelected = { selectedCategory = it }
+            )
+        }
+
+        items(filteredAssets) { asset ->
             MarketAssetCard(
                 asset = asset,
                 onClick = { onAssetClick(asset) }
             )
         }
+    }
+}
+
+@Composable
+fun CategoryFilter(
+    selectedCategory: AssetCategory?,
+    onCategorySelected: (AssetCategory?) -> Unit
+) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(12.dp)
+    ) {
+        // All button
+        FilterChip(
+            selected = selectedCategory == null,
+            onClick = { onCategorySelected(null) },
+            label = {
+                Text(
+                    text = "All",
+                    style = MaterialTheme.typography.bodyMedium.copy(
+                        fontWeight = FontWeight.Medium
+                    )
+                )
+            },
+            colors = FilterChipDefaults.filterChipColors(
+                selectedContainerColor = PrimaryBlue,
+                selectedLabelColor = androidx.compose.ui.graphics.Color.White,
+                containerColor = androidx.compose.ui.graphics.Color.Transparent,
+                labelColor = TextSecondary
+            ),
+            border = FilterChipDefaults.filterChipBorder(
+                enabled = true,
+                selected = selectedCategory == null,
+                borderColor = if (selectedCategory == null) PrimaryBlue else DividerGray,
+                selectedBorderColor = PrimaryBlue
+            )
+        )
+        
+        // Stock button
+        FilterChip(
+            selected = selectedCategory == AssetCategory.STOCK,
+            onClick = { onCategorySelected(AssetCategory.STOCK) },
+            label = {
+                Text(
+                    text = "Stocks",
+                    style = MaterialTheme.typography.bodyMedium.copy(
+                        fontWeight = FontWeight.Medium
+                    )
+                )
+            },
+            colors = FilterChipDefaults.filterChipColors(
+                selectedContainerColor = PrimaryBlue,
+                selectedLabelColor = androidx.compose.ui.graphics.Color.White,
+                containerColor = androidx.compose.ui.graphics.Color.Transparent,
+                labelColor = TextSecondary
+            ),
+            border = FilterChipDefaults.filterChipBorder(
+                enabled = true,
+                selected = selectedCategory == AssetCategory.STOCK,
+                borderColor = if (selectedCategory == AssetCategory.STOCK) PrimaryBlue else DividerGray,
+                selectedBorderColor = PrimaryBlue
+            )
+        )
+        
+        // Crypto button
+        FilterChip(
+            selected = selectedCategory == AssetCategory.CRYPTO,
+            onClick = { onCategorySelected(AssetCategory.CRYPTO) },
+            label = {
+                Text(
+                    text = "Crypto",
+                    style = MaterialTheme.typography.bodyMedium.copy(
+                        fontWeight = FontWeight.Medium
+                    )
+                )
+            },
+            colors = FilterChipDefaults.filterChipColors(
+                selectedContainerColor = Orange40,
+                selectedLabelColor = androidx.compose.ui.graphics.Color.White,
+                containerColor = androidx.compose.ui.graphics.Color.Transparent,
+                labelColor = TextSecondary
+            ),
+            border = FilterChipDefaults.filterChipBorder(
+                enabled = true,
+                selected = selectedCategory == AssetCategory.CRYPTO,
+                borderColor = if (selectedCategory == AssetCategory.CRYPTO) Orange40 else DividerGray,
+                selectedBorderColor = Orange40
+            )
+        )
     }
 }

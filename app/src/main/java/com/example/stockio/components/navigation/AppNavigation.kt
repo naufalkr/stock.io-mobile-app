@@ -1,20 +1,31 @@
 package com.example.stockio.components.navigation
 
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
+import androidx.compose.material.icons.outlined.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.stockio.model.*
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.foundation.BorderStroke
+
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -22,50 +33,51 @@ fun ModernTopAppBar(onNotificationClick: () -> Unit) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .height(88.dp),
-        shape = RoundedCornerShape(bottomStart = 24.dp, bottomEnd = 24.dp),
+            .height(80.dp),
+        shape = RoundedCornerShape(0.dp),
         colors = CardDefaults.cardColors(containerColor = CardWhite),
-        elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
-    ) {
-        Row(
+        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
+    ) {        Box(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(horizontal = 20.dp, vertical = 16.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween
+                .background(CardWhite)
+                .padding(top = 16.dp),
+            contentAlignment = Alignment.Center
         ) {
-            Column {
-                Text(
-                    text = "stockio",
-                    style = MaterialTheme.typography.headlineSmall.copy(
-                        fontWeight = FontWeight.Bold,
-                        color = PrimaryBlue,
-                        fontSize = 24.sp
-                    )
-                )
-                Text(
-                    text = "Investasi Cerdas Dimulai Disini",
-                    style = MaterialTheme.typography.bodySmall.copy(
-                        color = TextSecondary,
-                        fontSize = 12.sp
-                    )
-                )
-            }
-            
-            IconButton(
-                onClick = onNotificationClick,
-                modifier = Modifier
-                    .size(48.dp)
-                    .background(
-                        PrimaryBlue.copy(alpha = 0.1f),
-                        shape = CircleShape
-                    )
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                Icon(
-                    imageVector = Icons.Filled.Notifications,
-                    contentDescription = "Notifikasi",
-                    tint = PrimaryBlue,
-                    modifier = Modifier.size(24.dp)
+                // Logo Container
+                Card(
+                    modifier = Modifier.size(48.dp),
+                    shape = RoundedCornerShape(12.dp),
+                    colors = CardDefaults.cardColors(
+                        containerColor = PrimaryBlue
+                    ),
+                    elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+                ) {
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            imageVector = Icons.Filled.TrendingUp,
+                            contentDescription = "Stockio Logo",
+                            tint = Color.White,
+                            modifier = Modifier.size(28.dp)
+                        )
+                    }
+                }
+                
+                // App Name
+                Text(
+                    text = "Stockio",
+                    style = MaterialTheme.typography.headlineMedium.copy(
+                        fontWeight = FontWeight.ExtraBold,
+                        color = PrimaryBlue,
+                        fontSize = 28.sp
+                    )
                 )
             }
         }
@@ -77,122 +89,142 @@ fun ModernBottomNavigationBar(currentScreen: Screen, onScreenSelected: (Screen) 
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .height(80.dp),
-        shape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp),
+            .height(90.dp),
+        shape = RoundedCornerShape(0.dp),
         colors = CardDefaults.cardColors(containerColor = CardWhite),
-        elevation = CardDefaults.cardElevation(defaultElevation = 16.dp)
+        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
     ) {
-        NavigationBar(
-            containerColor = Color.Transparent,
-            modifier = Modifier.fillMaxSize()
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(CardWhite)
         ) {
-            NavigationBarItem(
-                icon = {
-                    Icon(
-                        imageVector = Icons.Filled.Home,
-                        contentDescription = "Beranda",
-                        modifier = Modifier.size(24.dp)
-                    )
-                },
-                label = { 
-                    Text(
-                        "Beranda",
-                        style = MaterialTheme.typography.bodySmall.copy(
-                            fontWeight = FontWeight.Medium
-                        )
-                    ) 
-                },
-                selected = currentScreen == Screen.HOME,
-                onClick = { onScreenSelected(Screen.HOME) },
-                colors = NavigationBarItemDefaults.colors(
-                    selectedIconColor = PrimaryBlue,
-                    selectedTextColor = PrimaryBlue,
-                    unselectedIconColor = TextSecondary,
-                    unselectedTextColor = TextSecondary,
-                    indicatorColor = PrimaryBlue.copy(alpha = 0.15f)
+            Row(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(horizontal = 16.dp, vertical = 12.dp),
+                horizontalArrangement = Arrangement.SpaceEvenly,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                // Home Item
+                ModernNavItem(
+                    icon = Icons.Filled.Home,
+                    label = "Beranda",
+                    isSelected = currentScreen == Screen.HOME,
+                    onClick = { onScreenSelected(Screen.HOME) }
                 )
-            )
+                
+                // Market Item
+                ModernNavItem(
+                    icon = Icons.Filled.TrendingUp,
+                    label = "Pasar",
+                    isSelected = currentScreen == Screen.MARKET,
+                    onClick = { onScreenSelected(Screen.MARKET) }
+                )
+                
+                // Portfolio Item
+                ModernNavItem(
+                    icon = Icons.Filled.AccountBalanceWallet,
+                    label = "Portofolio",
+                    isSelected = currentScreen == Screen.PORTFOLIO,
+                    onClick = { onScreenSelected(Screen.PORTFOLIO) }
+                )
+                
+                // Profile Item
+                ModernNavItem(
+                    icon = Icons.Filled.Person,
+                    label = "Profil",
+                    isSelected = currentScreen == Screen.PROFILE,
+                    onClick = { onScreenSelected(Screen.PROFILE) }
+                )
+            }
+        }
+    }
+}
 
-            NavigationBarItem(
-                icon = {
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun ModernNavItem(
+    icon: ImageVector,
+    label: String,
+    isSelected: Boolean,
+    onClick: () -> Unit
+) {
+    val animatedColor by animateColorAsState(
+        targetValue = if (isSelected) PrimaryBlue else TextSecondary,
+        label = "nav_color"
+    )
+    
+    val animatedBackgroundAlpha by animateFloatAsState(
+        targetValue = if (isSelected) 0.12f else 0f,
+        label = "nav_background"
+    )
+    
+    val animatedIconBackgroundAlpha by animateFloatAsState(
+        targetValue = if (isSelected) 0.15f else 0f,
+        label = "nav_icon_background"
+    )
+    
+    Column(
+        modifier = Modifier
+            .size(width = 70.dp, height = 66.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
+    ) {
+        // Main container
+        Card(
+            onClick = onClick,
+            modifier = Modifier
+                .size(width = 64.dp, height = 52.dp),
+            shape = RoundedCornerShape(18.dp),
+            colors = CardDefaults.cardColors(
+                containerColor = PrimaryBlue.copy(alpha = animatedBackgroundAlpha)
+            ),
+            elevation = CardDefaults.cardElevation(
+                defaultElevation = if (isSelected) 2.dp else 0.dp
+            ),
+            border = if (isSelected) {
+                BorderStroke(1.dp, PrimaryBlue.copy(alpha = 0.2f))
+            } else null
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(vertical = 6.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
+            ) {
+                // Icon Container
+                Box(
+                    modifier = Modifier
+                        .size(28.dp)
+                        .background(
+                            color = PrimaryBlue.copy(alpha = animatedIconBackgroundAlpha),
+                            shape = RoundedCornerShape(8.dp)
+                        ),
+                    contentAlignment = Alignment.Center
+                ) {
                     Icon(
-                        imageVector = Icons.Filled.BarChart,
-                        contentDescription = "Pasar",
-                        modifier = Modifier.size(24.dp)
+                        imageVector = icon,
+                        contentDescription = label,
+                        tint = animatedColor,
+                        modifier = Modifier.size(18.dp)
                     )
-                },
-                label = { 
-                    Text(
-                        "Pasar",
-                        style = MaterialTheme.typography.bodySmall.copy(
-                            fontWeight = FontWeight.Medium
-                        )
-                    ) 
-                },
-                selected = currentScreen == Screen.MARKET,
-                onClick = { onScreenSelected(Screen.MARKET) },
-                colors = NavigationBarItemDefaults.colors(
-                    selectedIconColor = PrimaryBlue,
-                    selectedTextColor = PrimaryBlue,
-                    unselectedIconColor = TextSecondary,
-                    unselectedTextColor = TextSecondary,
-                    indicatorColor = PrimaryBlue.copy(alpha = 0.15f)
+                }
+                
+                Spacer(modifier = Modifier.height(3.dp))
+                
+                // Label
+                Text(
+                    text = label,
+                    style = MaterialTheme.typography.bodySmall.copy(
+                        fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Medium,
+                        fontSize = 10.sp
+                    ),
+                    color = animatedColor,
+                    maxLines = 1
                 )
-            )
-
-            NavigationBarItem(
-                icon = {
-                    Icon(
-                        imageVector = Icons.Filled.AccountBalanceWallet,
-                        contentDescription = "Portofolio",
-                        modifier = Modifier.size(24.dp)
-                    )
-                },
-                label = { 
-                    Text(
-                        "Portofolio",
-                        style = MaterialTheme.typography.bodySmall.copy(
-                            fontWeight = FontWeight.Medium
-                        )
-                    ) 
-                },
-                selected = currentScreen == Screen.PORTFOLIO,
-                onClick = { onScreenSelected(Screen.PORTFOLIO) },
-                colors = NavigationBarItemDefaults.colors(
-                    selectedIconColor = PrimaryBlue,
-                    selectedTextColor = PrimaryBlue,
-                    unselectedIconColor = TextSecondary,
-                    unselectedTextColor = TextSecondary,
-                    indicatorColor = PrimaryBlue.copy(alpha = 0.15f)
-                )
-            )
-
-            NavigationBarItem(
-                icon = {
-                    Icon(
-                        imageVector = Icons.Filled.Settings,
-                        contentDescription = "Profil",
-                        modifier = Modifier.size(24.dp)
-                    )
-                },
-                label = { 
-                    Text(
-                        "Profil",
-                        style = MaterialTheme.typography.bodySmall.copy(
-                            fontWeight = FontWeight.Medium
-                        )
-                    ) 
-                },
-                selected = currentScreen == Screen.PROFILE,
-                onClick = { onScreenSelected(Screen.PROFILE) },
-                colors = NavigationBarItemDefaults.colors(
-                    selectedIconColor = PrimaryBlue,
-                    selectedTextColor = PrimaryBlue,
-                    unselectedIconColor = TextSecondary,
-                    unselectedTextColor = TextSecondary,
-                    indicatorColor = PrimaryBlue.copy(alpha = 0.15f)
-                )
-            )
+            }
         }
     }
 }

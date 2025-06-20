@@ -61,17 +61,21 @@ fun stockioInvestasiApp() {
     Scaffold(
         containerColor = BackgroundGray,
         topBar = {
-            ModernTopAppBar(
-                onNotificationClick = {
-                    scope.launch {
-                        snackbarHostState.showSnackbar("Notifikasi ditampilkan")
+            if (currentScreen.value != Screen.ASSET_DETAIL) {
+                ModernTopAppBar(
+                    onNotificationClick = {
+                        scope.launch {
+                            snackbarHostState.showSnackbar("Notifikasi ditampilkan")
+                        }
                     }
-                }
-            )
+                )
+            }
         },
         bottomBar = {
-            ModernBottomNavigationBar(currentScreen = currentScreen.value) { screen ->
-                currentScreen.value = screen
+            if (currentScreen.value != Screen.ASSET_DETAIL) {
+                ModernBottomNavigationBar(currentScreen = currentScreen.value) { screen ->
+                    currentScreen.value = screen
+                }
             }
         },
         floatingActionButton = {
@@ -88,7 +92,7 @@ fun stockioInvestasiApp() {
         },
         snackbarHost = { SnackbarHost(snackbarHostState) }
     ) { innerPadding ->
-        Box(modifier = Modifier.padding(innerPadding)) {
+        Box(modifier = Modifier.padding(if (currentScreen.value == Screen.ASSET_DETAIL) PaddingValues(0.dp) else innerPadding)) {
             when (currentScreen.value) {
                 Screen.HOME -> ModernHomeScreen(
                     balance = balance,
@@ -99,7 +103,7 @@ fun stockioInvestasiApp() {
                     onToggleBalance = { isBalanceVisible = !isBalanceVisible },
                     onAssetClick = { asset ->
                         selectedAsset = asset
-                        showBuyDialog = true
+                        currentScreen.value = Screen.ASSET_DETAIL
                     },
                     onRefreshMarketData = {
                         marketAssets = getSampleMarketData()
@@ -112,7 +116,7 @@ fun stockioInvestasiApp() {
                     marketAssets = marketAssets,
                     onAssetClick = { asset ->
                         selectedAsset = asset
-                        showBuyDialog = true
+                        currentScreen.value = Screen.ASSET_DETAIL
                     }
                 )
                 Screen.PORTFOLIO -> ModernPortfolioScreen(
@@ -127,6 +131,18 @@ fun stockioInvestasiApp() {
                     }
                 )
                 Screen.PROFILE -> ModernProfileScreen()
+                
+                Screen.ASSET_DETAIL -> selectedAsset?.let { asset ->
+                    AssetDetailScreen(
+                        asset = asset,
+                        onBackClick = {
+                            currentScreen.value = Screen.MARKET
+                        },
+                        onBuyClick = {
+                            showBuyDialog = true
+                        }
+                    )
+                }
             }
 
             // Dialog beli aset
