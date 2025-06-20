@@ -109,6 +109,12 @@ fun stockioInvestasiApp() {
                         scope.launch {
                             snackbarHostState.showSnackbar("Market data updated")
                         }
+                    },
+                    onNavigateToMarket = {
+                        currentScreen.value = Screen.MARKET
+                    },
+                    onNavigateToPortfolio = {
+                        currentScreen.value = Screen.PORTFOLIO
                     }
                 )
                 Screen.MARKET -> ModernMarketScreen(
@@ -130,23 +136,7 @@ fun stockioInvestasiApp() {
                     }
                 )
                 Screen.PROFILE -> ModernProfileScreen(user = user)
-                Screen.NEWS -> {
-                    // Placeholder for News screen
-                    Box(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(20.dp),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text(
-                            "News feature coming soon",
-                            style = MaterialTheme.typography.titleLarge.copy(
-                                fontWeight = FontWeight.Medium,
-                                color = TextSecondary
-                            )
-                        )
-                    }
-                }
+                Screen.NEWS -> ModernNewsScreen()
                 Screen.ASSET_DETAIL -> selectedAsset?.let { asset ->
                     AssetDetailScreen(
                         asset = asset,

@@ -124,55 +124,120 @@ fun ModernBottomNavigationBar(currentScreen: Screen, onScreenSelected: (Screen) 
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .height(90.dp),
+            .height(80.dp), // Increased height for better spacing
         shape = RoundedCornerShape(0.dp),
         colors = CardDefaults.cardColors(containerColor = CardWhite),
-        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
+        elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
     ) {
         Box(
             modifier = Modifier
                 .fillMaxSize()
                 .background(CardWhite)
+                .padding(vertical = 8.dp) // Added vertical padding
         ) {
             Row(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(horizontal = 16.dp, vertical = 12.dp),
+                    .padding(horizontal = 20.dp),
                 horizontalArrangement = Arrangement.SpaceEvenly,
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 // Home Item
-                ModernNavItem(
+                CleanNavItem(
                     icon = Icons.Filled.Home,
-                    label = "Beranda",
+                    label = "Home",
                     isSelected = currentScreen == Screen.HOME,
                     onClick = { onScreenSelected(Screen.HOME) }
                 )
                 
                 // Market Item
-                ModernNavItem(
+                CleanNavItem(
                     icon = Icons.Filled.TrendingUp,
-                    label = "Pasar",
+                    label = "Market",
                     isSelected = currentScreen == Screen.MARKET,
                     onClick = { onScreenSelected(Screen.MARKET) }
                 )
                 
                 // Portfolio Item
-                ModernNavItem(
+                CleanNavItem(
                     icon = Icons.Filled.AccountBalanceWallet,
-                    label = "Portofolio",
+                    label = "Portfolio",
                     isSelected = currentScreen == Screen.PORTFOLIO,
                     onClick = { onScreenSelected(Screen.PORTFOLIO) }
                 )
                 
-                // News Item (replacing Profile)
-                ModernNavItem(
+                // News Item
+                CleanNavItem(
                     icon = Icons.Filled.Article,
-                    label = "Berita",
+                    label = "News",
                     isSelected = currentScreen == Screen.NEWS,
                     onClick = { onScreenSelected(Screen.NEWS) }
                 )
             }
+        }
+    }
+}
+
+@Composable
+fun CleanNavItem(
+    icon: ImageVector,
+    label: String,
+    isSelected: Boolean,
+    onClick: () -> Unit
+) {
+    val animatedColor by animateColorAsState(
+        targetValue = if (isSelected) PrimaryBlue else TextSecondary,
+        label = "nav_color"
+    )
+    
+    val animatedScale by animateFloatAsState(
+        targetValue = if (isSelected) 1.1f else 1.0f,
+        label = "nav_scale"
+    )
+    
+    Column(
+        modifier = Modifier
+            .clickable { onClick() }
+            .padding(vertical = 4.dp, horizontal = 8.dp)
+            .graphicsLayer {
+                scaleX = animatedScale
+                scaleY = animatedScale
+            },
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
+    ) {
+        // Simple icon without background container
+        Icon(
+            imageVector = icon,
+            contentDescription = label,
+            tint = animatedColor,
+            modifier = Modifier.size(24.dp)
+        )
+        
+        Spacer(modifier = Modifier.height(4.dp))
+        
+        // Label
+        Text(
+            text = label,
+            style = MaterialTheme.typography.labelSmall.copy(
+                fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Normal,
+                fontSize = 10.sp
+            ),
+            color = animatedColor,
+            maxLines = 1
+        )
+        
+        // Selection indicator
+        if (isSelected) {
+            Spacer(modifier = Modifier.height(2.dp))
+            Box(
+                modifier = Modifier
+                    .size(4.dp)
+                    .background(
+                        color = PrimaryBlue,
+                        shape = CircleShape
+                    )
+            )
         }
     }
 }

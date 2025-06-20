@@ -22,7 +22,9 @@ fun ModernHomeScreen(
     isBalanceVisible: Boolean,
     onToggleBalance: () -> Unit,
     onAssetClick: (InvestmentAsset) -> Unit,
-    onRefreshMarketData: () -> Unit
+    onRefreshMarketData: () -> Unit,
+    onNavigateToMarket: () -> Unit = {}, // Added navigation callback
+    onNavigateToPortfolio: () -> Unit = {} // Added navigation callback
 ) {
     val currencyFormat = remember { NumberFormat.getCurrencyInstance(Locale("id", "ID")) }
     val totalValue = balance + portfolioValue
@@ -54,7 +56,7 @@ fun ModernHomeScreen(
             SectionHeader(
                 title = "Popular Assets",
                 actionText = "View All",
-                onActionClick = onRefreshMarketData
+                onActionClick = onNavigateToMarket // Changed to navigate to market
             )
         }
 
@@ -69,7 +71,7 @@ fun ModernHomeScreen(
             SectionHeader(
                 title = "My Portfolio",
                 actionText = "View Details",
-                onActionClick = { }
+                onActionClick = onNavigateToPortfolio // Changed to navigate to portfolio
             )
         }
 

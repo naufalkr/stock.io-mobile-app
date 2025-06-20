@@ -1,5 +1,6 @@
 package com.example.stockio.components.shared
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -7,36 +8,35 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.example.stockio.model.*
 
 @Composable
 fun SectionHeader(
     title: String,
     actionText: String,
-    onActionClick: () -> Unit
+    onActionClick: () -> Unit,
+    modifier: Modifier = Modifier
 ) {
     Row(
-        modifier = Modifier.fillMaxWidth(),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.SpaceBetween
+        modifier = modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
     ) {
         Text(
-            title,
+            text = title,
             style = MaterialTheme.typography.titleLarge.copy(
                 fontWeight = FontWeight.Bold,
-                color = TextPrimary,
-                fontSize = 20.sp
+                color = TextPrimary
             )
         )
-        TextButton(onClick = onActionClick) {
-            Text(
-                actionText,
-                style = MaterialTheme.typography.bodyMedium.copy(
-                    color = PrimaryBlue,
-                    fontWeight = FontWeight.Medium
-                )
-            )
-        }
+        
+        Text(
+            text = actionText,
+            style = MaterialTheme.typography.bodyMedium.copy(
+                fontWeight = FontWeight.Medium,
+                color = PrimaryBlue
+            ),
+            modifier = Modifier.clickable { onActionClick() }
+        )
     }
 }
