@@ -54,7 +54,7 @@ fun BalanceCard(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        "Total Nilai Aset",
+                        "Total Asset Value",
                         style = MaterialTheme.typography.bodyMedium.copy(
                             color = Color.White.copy(alpha = 0.8f),
                             fontSize = 14.sp
@@ -89,12 +89,12 @@ fun BalanceCard(
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
                     BalanceInfoItem(
-                        title = "Saldo Tunai",
+                        title = "Cash Balance",
                         amount = if (isBalanceVisible) currencyFormat.format(balance) else "Rp ****",
                         icon = Icons.Filled.AccountBalanceWallet
                     )
                     BalanceInfoItem(
-                        title = "Investasi",
+                        title = "Investment",
                         amount = if (isBalanceVisible) currencyFormat.format(portfolioValue) else "Rp ****",
                         icon = Icons.Filled.TrendingUp
                     )
@@ -156,19 +156,19 @@ fun QuickActionsCard() {
         ) {
             QuickActionItem(
                 icon = Icons.Filled.Add,
-                title = "Beli",
+                title = "Buy",
                 color = Green40,
                 onClick = { }
             )
             QuickActionItem(
                 icon = Icons.Filled.TrendingUp,
-                title = "Analisis",
+                title = "Analysis",
                 color = Purple40,
                 onClick = { }
             )
             QuickActionItem(
                 icon = Icons.Filled.BarChart,
-                title = "Laporan",
+                title = "Report",
                 color = Orange40,
                 onClick = { }
             )
@@ -246,14 +246,14 @@ fun EmptyPortfolioCard() {
             }
             Spacer(modifier = Modifier.height(16.dp))
             Text(
-                "Belum Ada Investasi",
+                "No Investments Yet",
                 style = MaterialTheme.typography.titleMedium.copy(
                     fontWeight = FontWeight.Bold,
                     color = TextPrimary
                 )
             )
             Text(
-                "Mulai berinvestasi untuk membangun portofolio Anda",
+                "Start investing to build your portfolio",
                 style = MaterialTheme.typography.bodyMedium.copy(
                     color = TextSecondary
                 ),

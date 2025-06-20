@@ -151,7 +151,11 @@ fun PortfolioAssetCard(
                         )
                     )
                     Text(
-                        text = "${asset.quantity} lots",
+                        text = if (asset.category == AssetCategory.IHSG) {
+                            "${asset.quantity.toInt()} lots"
+                        } else {
+                            "${String.format("%.8f", asset.quantity)} ${asset.code}"
+                        },
                         style = MaterialTheme.typography.bodyMedium.copy(
                             color = TextSecondary
                         )
@@ -321,7 +325,11 @@ fun PortfolioAssetWithActionCard(
                             )
                         )
                         Text(
-                            text = "${asset.quantity} lots",
+                            text = if (asset.category == AssetCategory.IHSG) {
+                                "${asset.quantity.toInt()} lots"
+                            } else {
+                                "${String.format("%.8f", asset.quantity)} ${asset.code}"
+                            },
                             style = MaterialTheme.typography.bodyMedium.copy(
                                 color = TextSecondary
                             )
@@ -391,7 +399,7 @@ fun EmptyPortfolioCard(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
-                text = "Portofolio Kosong",
+                text = "Empty Portfolio",
                 style = MaterialTheme.typography.titleLarge.copy(
                     fontWeight = FontWeight.Bold,
                     color = TextPrimary
@@ -401,7 +409,7 @@ fun EmptyPortfolioCard(
             Spacer(modifier = Modifier.height(8.dp))
 
             Text(
-                text = "Anda belum memiliki aset investasi. Mulai berinvestasi dengan mengunjungi halaman Pasar.",                style = MaterialTheme.typography.bodyMedium.copy(
+                text = "You don't have any investment assets yet. Start investing by visiting the Market page.",                style = MaterialTheme.typography.bodyMedium.copy(
                     color = TextSecondary
                 ),
                 textAlign = TextAlign.Center

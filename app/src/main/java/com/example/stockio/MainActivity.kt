@@ -20,6 +20,15 @@ import com.example.stockio.components.dialogs.*
 import com.example.stockio.model.*
 import com.example.stockio.ui.theme.stockioTheme
 import kotlinx.coroutines.launch
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.material.icons.filled.Article
+import androidx.compose.material.icons.filled.ExitToApp
+import androidx.compose.material.icons.filled.Help
+import androidx.compose.material.icons.filled.Info
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.text.font.FontWeight
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -43,9 +52,13 @@ fun stockioInvestasiApp() {
     val currentScreen = remember { mutableStateOf(Screen.HOME) }
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
+    var showSidebar by remember { mutableStateOf(false) }
 
-    // State untuk data investasi
-    var balance by remember { mutableStateOf(10000000.0) } // Saldo awal 10 juta
+    // User data
+    val user = remember { getSampleUser() }
+
+    // Investment data state
+    var balance by remember { mutableStateOf(10000000.0) } // Initial balance 10 million
     var portfolioValue by remember { mutableStateOf(0.0) }
     var assets by remember { mutableStateOf(emptyList<InvestmentAsset>()) }
     var marketAssets by remember { mutableStateOf(getSampleMarketData()) }
@@ -63,10 +76,8 @@ fun stockioInvestasiApp() {
         topBar = {
             if (currentScreen.value != Screen.ASSET_DETAIL) {
                 ModernTopAppBar(
-                    onNotificationClick = {
-                        scope.launch {
-                            snackbarHostState.showSnackbar("Notifikasi ditampilkan")
-                        }
+                    onProfileClick = {
+                        showSidebar = true
                     }
                 )
             }
@@ -75,18 +86,6 @@ fun stockioInvestasiApp() {
             if (currentScreen.value != Screen.ASSET_DETAIL) {
                 ModernBottomNavigationBar(currentScreen = currentScreen.value) { screen ->
                     currentScreen.value = screen
-                }
-            }
-        },
-        floatingActionButton = {
-            if (currentScreen.value == Screen.HOME) {
-                FloatingActionButton(
-                    onClick = { /* Aksi tambah cepat */ },
-                    containerColor = PrimaryBlue,
-                    contentColor = Color.White,
-                    modifier = Modifier.shadow(16.dp, shape = CircleShape)
-                ) {
-                    Icon(Icons.Filled.Add, "Tambah cepat", modifier = Modifier.size(24.dp))
                 }
             }
         },
@@ -108,7 +107,7 @@ fun stockioInvestasiApp() {
                     onRefreshMarketData = {
                         marketAssets = getSampleMarketData()
                         scope.launch {
-                            snackbarHostState.showSnackbar("Data pasar diperbarui")
+                            snackbarHostState.showSnackbar("Market data updated")
                         }
                     }
                 )
@@ -126,12 +125,28 @@ fun stockioInvestasiApp() {
                         assets = assets.filter { it.id != asset.id }
                         balance += asset.currentPrice * asset.quantity
                         scope.launch {
-                            snackbarHostState.showSnackbar("Aset berhasil dijual")
+                            snackbarHostState.showSnackbar("Asset sold successfully")
                         }
                     }
                 )
-                Screen.PROFILE -> ModernProfileScreen()
-                
+                Screen.PROFILE -> ModernProfileScreen(user = user)
+                Screen.NEWS -> {
+                    // Placeholder for News screen
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(20.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            "News feature coming soon",
+                            style = MaterialTheme.typography.titleLarge.copy(
+                                fontWeight = FontWeight.Medium,
+                                color = TextSecondary
+                            )
+                        )
+                    }
+                }
                 Screen.ASSET_DETAIL -> selectedAsset?.let { asset ->
                     AssetDetailScreen(
                         asset = asset,
@@ -154,20 +169,28 @@ fun stockioInvestasiApp() {
                         onBuy = { quantity ->
                             if (quantity > 0) {
                                 val existingAsset = assets.find { it.id == asset.id }
+                                val totalCost = if (asset.category == AssetCategory.IHSG) {
+                                    // For stocks: quantity is in lots, cost = quantity * price
+                                    quantity * asset.currentPrice
+                                } else {
+                                    // For crypto: quantity is calculated coins, cost = quantity * price
+                                    quantity * asset.currentPrice
+                                }
+                                
                                 if (existingAsset != null) {
                                     assets = assets.map {
                                         if (it.id == asset.id) {
-                                            it.copy(quantity = it.quantity + quantity)
+                                            it.copy(quantity = it.quantity + quantity) // Remove .toInt()
                                         } else {
                                             it
                                         }
                                     }
                                 } else {
-                                    assets = assets + asset.copy(quantity = quantity)
+                                    assets = assets + asset.copy(quantity = quantity) // Remove .toInt()
                                 }
-                                balance -= asset.currentPrice * quantity
+                                balance -= totalCost
                                 scope.launch {
-                                    snackbarHostState.showSnackbar("Pembelian berhasil!")
+                                    snackbarHostState.showSnackbar("Purchase successful!")
                                 }
                             }
                             showBuyDialog = false
@@ -175,6 +198,30 @@ fun stockioInvestasiApp() {
                         onDismiss = { showBuyDialog = false }
                     )
                 }
+            }
+            
+            // Sidebar
+            AnimatedVisibility(
+                visible = showSidebar,
+                enter = slideInHorizontally(initialOffsetX = { -it }),
+                exit = slideOutHorizontally(targetOffsetX = { -it })
+            ) {
+                ProfileSidebar(
+                    user = user,
+                    onProfileClick = {
+                        currentScreen.value = Screen.PROFILE
+                        showSidebar = false
+                    },
+                    onLogoutClick = {
+                        scope.launch {
+                            snackbarHostState.showSnackbar("You have been logged out")
+                        }
+                        showSidebar = false
+                    },
+                    onDismiss = {
+                        showSidebar = false
+                    }
+                )
             }
         }
     }

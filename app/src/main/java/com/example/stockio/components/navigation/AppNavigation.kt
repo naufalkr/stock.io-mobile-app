@@ -4,6 +4,7 @@ import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -24,26 +25,60 @@ import androidx.compose.ui.unit.sp
 import com.example.stockio.model.*
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.foundation.BorderStroke
-
+import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.icons.filled.Close
 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ModernTopAppBar(onNotificationClick: () -> Unit) {
+fun ModernTopAppBar(onProfileClick: () -> Unit) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
+            .padding(top = 20.dp)
             .height(80.dp),
         shape = RoundedCornerShape(0.dp),
         colors = CardDefaults.cardColors(containerColor = CardWhite),
         elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
-    ) {        Box(
+    ) {        
+        Box(
             modifier = Modifier
                 .fillMaxSize()
                 .background(CardWhite)
                 .padding(top = 16.dp),
             contentAlignment = Alignment.Center
         ) {
+            // Profile Avatar (Left)
+            Box(
+                modifier = Modifier
+                    .align(Alignment.CenterStart)
+                    .padding(start = 16.dp)
+            ) {
+                Card(
+                    modifier = Modifier
+                        .size(40.dp)
+                        .clickable { onProfileClick() },
+                    shape = RoundedCornerShape(8.dp),
+                    colors = CardDefaults.cardColors(
+                        containerColor = PrimaryBlue.copy(alpha = 0.15f)
+                    ),
+                    border = BorderStroke(1.dp, PrimaryBlue.copy(alpha = 0.2f))
+                ) {
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            imageVector = Icons.Filled.Menu,
+                            contentDescription = "Menu",
+                            tint = PrimaryBlue,
+                            modifier = Modifier.size(24.dp)
+                        )
+                    }
+                }
+            }
+            
+            // Center Logo
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(12.dp)
@@ -72,7 +107,7 @@ fun ModernTopAppBar(onNotificationClick: () -> Unit) {
                 
                 // App Name
                 Text(
-                    text = "Stockio",
+                    text = "Stock.io",
                     style = MaterialTheme.typography.headlineMedium.copy(
                         fontWeight = FontWeight.ExtraBold,
                         color = PrimaryBlue,
@@ -130,12 +165,12 @@ fun ModernBottomNavigationBar(currentScreen: Screen, onScreenSelected: (Screen) 
                     onClick = { onScreenSelected(Screen.PORTFOLIO) }
                 )
                 
-                // Profile Item
+                // News Item (replacing Profile)
                 ModernNavItem(
-                    icon = Icons.Filled.Person,
-                    label = "Profil",
-                    isSelected = currentScreen == Screen.PROFILE,
-                    onClick = { onScreenSelected(Screen.PROFILE) }
+                    icon = Icons.Filled.Article,
+                    label = "Berita",
+                    isSelected = currentScreen == Screen.NEWS,
+                    onClick = { onScreenSelected(Screen.NEWS) }
                 )
             }
         }
@@ -226,5 +261,163 @@ fun ModernNavItem(
                 )
             }
         }
+    }
+}
+
+@Composable
+fun ProfileSidebar(
+    user: User,
+    onProfileClick: () -> Unit,
+    onLogoutClick: () -> Unit,
+    onDismiss: () -> Unit
+) {
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .clickable { onDismiss() }
+    ) {
+        Card(
+            modifier = Modifier
+                .width(280.dp)
+                .fillMaxHeight()
+                .clickable(enabled = false) { /* Prevent clicks through the card */ },
+            colors = CardDefaults.cardColors(containerColor = CardWhite),
+            shape = RoundedCornerShape(topEnd = 24.dp, bottomEnd = 24.dp),
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(vertical = 24.dp)
+            ) {
+                // Header with profile info
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 24.dp, vertical = 16.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    // Profile avatar
+                    Box(
+                        modifier = Modifier
+                            .size(80.dp)
+                            .background(
+                                brush = Brush.radialGradient(
+                                    colors = listOf(
+                                        PrimaryBlue.copy(alpha = 0.3f),
+                                        PrimaryBlue.copy(alpha = 0.1f)
+                                    )
+                                ),
+                                shape = CircleShape
+                            ),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            imageVector = Icons.Filled.Person,
+                            contentDescription = "Profile",
+                            tint = PrimaryBlue,
+                            modifier = Modifier.size(40.dp)
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    Text(
+                        text = user.name,
+                        style = MaterialTheme.typography.titleLarge.copy(
+                            fontWeight = FontWeight.Bold,
+                            color = TextPrimary
+                        )
+                    )
+
+                    Text(
+                        text = user.email,
+                        style = MaterialTheme.typography.bodyMedium.copy(
+                            color = TextSecondary
+                        )
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(24.dp))
+                Divider(color = DividerGray, thickness = 1.dp)
+
+                // Menu items
+                SidebarMenuItem(
+                    icon = Icons.Filled.Person,
+                    title = "Profile",
+                    onClick = onProfileClick
+                )
+                
+                SidebarMenuItem(
+                    icon = Icons.Filled.Settings,
+                    title = "Settings",
+                    onClick = { /* Will be implemented later */ }
+                )
+                
+                SidebarMenuItem(
+                    icon = Icons.Filled.Info,
+                    title = "About App",
+                    onClick = { /* Will be implemented later */ }
+                )
+                
+                SidebarMenuItem(
+                    icon = Icons.Filled.Help,
+                    title = "Help",
+                    onClick = { /* Will be implemented later */ }
+                )
+
+                Spacer(modifier = Modifier.weight(1f))
+                Divider(color = DividerGray, thickness = 1.dp)
+                
+                // Logout button
+                SidebarMenuItem(
+                    icon = Icons.Filled.ExitToApp,
+                    title = "Logout",
+                    textColor = Red40,
+                    iconColor = Red40,
+                    onClick = onLogoutClick
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun SidebarMenuItem(
+    icon: ImageVector,
+    title: String,
+    textColor: Color = TextPrimary,
+    iconColor: Color = PrimaryBlue,
+    onClick: () -> Unit
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable { onClick() }
+            .padding(vertical = 12.dp, horizontal = 24.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Box(
+            modifier = Modifier
+                .size(40.dp)
+                .background(iconColor.copy(alpha = 0.1f), RoundedCornerShape(8.dp)),
+            contentAlignment = Alignment.Center
+        ) {
+            Icon(
+                imageVector = icon,
+                contentDescription = title,
+                tint = iconColor,
+                modifier = Modifier.size(20.dp)
+            )
+        }
+        
+        Spacer(modifier = Modifier.width(16.dp))
+        
+        Text(
+            text = title,
+            style = MaterialTheme.typography.bodyLarge.copy(
+                fontWeight = FontWeight.Medium,
+                color = textColor
+            )
+        )
     }
 }

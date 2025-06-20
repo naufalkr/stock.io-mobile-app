@@ -41,15 +41,6 @@ fun ModernMarketScreen(
             .background(BackgroundGray)
             .padding(20.dp)
     ) {
-        // Header
-        Text(
-            "Pasar Investasi",
-            style = MaterialTheme.typography.headlineMedium.copy(
-                fontWeight = FontWeight.Bold,
-                color = TextPrimary
-            ),
-            modifier = Modifier.padding(bottom = 20.dp)
-        )
         
         // Search Bar
         SearchBar(
@@ -101,7 +92,7 @@ fun SearchBar(
         modifier = modifier.fillMaxWidth(),
         placeholder = {
             Text(
-                "Cari saham atau crypto...",
+                "Search stocks or crypto...",
                 style = MaterialTheme.typography.bodyMedium.copy(
                     color = TextSecondary
                 )
@@ -223,9 +214,9 @@ fun EmptyState(
     ) {
         Text(
             text = if (searchQuery.isEmpty()) {
-                "Belum ada data untuk kategori ${category.name}"
+                "No data available for ${category.name} category"
             } else {
-                "Tidak ditemukan hasil untuk \"$searchQuery\""
+                "No results found for \"$searchQuery\""
             },
             style = MaterialTheme.typography.bodyLarge.copy(
                 color = TextSecondary,
@@ -237,9 +228,9 @@ fun EmptyState(
         
         Text(
             text = if (searchQuery.isEmpty()) {
-                "Data akan segera ditambahkan"
+                "Data will be added soon"
             } else {
-                "Coba kata kunci yang berbeda"
+                "Try different keywords"
             },
             style = MaterialTheme.typography.bodyMedium.copy(
                 color = TextSecondary

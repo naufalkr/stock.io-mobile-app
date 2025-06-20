@@ -21,13 +21,30 @@ import java.util.Locale
 fun ModernBuyAssetDialog(
     asset: InvestmentAsset,
     balance: Double,
-    onBuy: (Int) -> Unit,
+    onBuy: (Double) -> Unit, // Changed from Int to Double to handle decimal quantities
     onDismiss: () -> Unit
 ) {
-    var quantity by remember { mutableStateOf("1") }
+    var inputValue by remember { mutableStateOf("") }
     val currencyFormat = remember { NumberFormat.getCurrencyInstance(Locale("id", "ID")) }
-    val totalCost = quantity.toIntOrNull()?.let { it * asset.currentPrice } ?: 0.0
-    val isValid = quantity.toIntOrNull()?.let { it > 0 && totalCost <= balance } ?: false
+    
+    val isStock = asset.category == AssetCategory.IHSG
+    val isValid: Boolean
+    val totalCost: Double
+    val quantity: Double
+    
+    if (isStock) {
+        // For stocks: input is lot quantity
+        val lotQuantity = inputValue.toIntOrNull() ?: 0
+        quantity = lotQuantity.toDouble()
+        totalCost = lotQuantity * asset.currentPrice
+        isValid = lotQuantity > 0 && totalCost <= balance
+    } else {
+        // For crypto: input is rupiah amount
+        val rupiaAmount = inputValue.toDoubleOrNull() ?: 0.0
+        totalCost = rupiaAmount
+        quantity = if (asset.currentPrice > 0) rupiaAmount / asset.currentPrice else 0.0
+        isValid = rupiaAmount > 0 && rupiaAmount <= balance
+    }
 
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -54,7 +71,7 @@ fun ModernBuyAssetDialog(
                 }
                 Spacer(modifier = Modifier.width(12.dp))
                 Text(
-                    "Beli ${asset.name}",
+                    "Buy ${asset.name}",
                     style = MaterialTheme.typography.headlineSmall.copy(
                         color = TextPrimary,
                         fontWeight = FontWeight.Bold
@@ -64,6 +81,7 @@ fun ModernBuyAssetDialog(
         },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
+                // Price info card
                 Card(
                     colors = CardDefaults.cardColors(containerColor = BackgroundGray),
                     shape = RoundedCornerShape(12.dp)
@@ -72,13 +90,13 @@ fun ModernBuyAssetDialog(
                         modifier = Modifier.padding(16.dp)
                     ) {
                         Text(
-                            "Harga per unit",
+                            if (isStock) "Price per lot" else "Current price",
                             style = MaterialTheme.typography.bodySmall.copy(
                                 color = TextSecondary
                             )
                         )
                         Text(
-                            "${currencyFormat.format(asset.currentPrice)} / ${asset.code}",
+                            "${currencyFormat.format(asset.currentPrice)}${if (isStock) " / lot" else " / ${asset.code}"}",
                             style = MaterialTheme.typography.titleMedium.copy(
                                 fontWeight = FontWeight.Bold,
                                 color = TextPrimary
@@ -87,22 +105,38 @@ fun ModernBuyAssetDialog(
                     }
                 }
 
+                // Input field
                 OutlinedTextField(
-                    value = quantity,
+                    value = inputValue,
                     onValueChange = { newValue ->
-                        if (newValue.isEmpty() || newValue.toIntOrNull() != null) {
-                            quantity = newValue
+                        if (isStock) {
+                            // For stocks: only allow integer input
+                            if (newValue.isEmpty() || newValue.toIntOrNull() != null) {
+                                inputValue = newValue
+                            }
+                        } else {
+                            // For crypto: allow decimal input
+                            if (newValue.isEmpty() || newValue.toDoubleOrNull() != null) {
+                                inputValue = newValue
+                            }
                         }
                     },
-                    label = { Text("Jumlah") },
+                    label = { 
+                        Text(if (isStock) "Quantity (lots)" else "Amount (Rp)")
+                    },
+                    placeholder = {
+                        Text(if (isStock) "Enter number of lots" else "Enter rupiah amount")
+                    },
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(12.dp),
                     colors = OutlinedTextFieldDefaults.colors(
                         focusedBorderColor = PrimaryBlue,
                         focusedLabelColor = PrimaryBlue
-                    )
+                    ),
+                    prefix = if (!isStock) {{ Text("Rp ") }} else null
                 )
 
+                // Result card
                 Card(
                     colors = CardDefaults.cardColors(
                         containerColor = if (totalCost > balance) Red40.copy(alpha = 0.1f) else Green40.copy(alpha = 0.1f)
@@ -112,22 +146,39 @@ fun ModernBuyAssetDialog(
                     Column(
                         modifier = Modifier.padding(16.dp)
                     ) {
-                        Text(
-                            "Total biaya",
-                            style = MaterialTheme.typography.bodySmall.copy(
-                                color = TextSecondary
+                        if (isStock) {
+                            Text(
+                                "Total cost",
+                                style = MaterialTheme.typography.bodySmall.copy(
+                                    color = TextSecondary
+                                )
                             )
-                        )
-                        Text(
-                            currencyFormat.format(totalCost),
-                            style = MaterialTheme.typography.titleLarge.copy(
-                                fontWeight = FontWeight.Bold,
-                                color = if (totalCost > balance) Red40 else Green40
+                            Text(
+                                currencyFormat.format(totalCost),
+                                style = MaterialTheme.typography.titleLarge.copy(
+                                    fontWeight = FontWeight.Bold,
+                                    color = if (totalCost > balance) Red40 else Green40
+                                )
                             )
-                        )
+                        } else {
+                            Text(
+                                "You will get",
+                                style = MaterialTheme.typography.bodySmall.copy(
+                                    color = TextSecondary
+                                )
+                            )
+                            Text(
+                                "${String.format("%.8f", quantity)} ${asset.code}",
+                                style = MaterialTheme.typography.titleLarge.copy(
+                                    fontWeight = FontWeight.Bold,
+                                    color = if (totalCost > balance) Red40 else Green40
+                                )
+                            )
+                        }
+                        
                         if (totalCost > balance) {
                             Text(
-                                "Saldo tidak mencukupi",
+                                "Insufficient balance",
                                 style = MaterialTheme.typography.bodySmall.copy(
                                     color = Red40
                                 )
@@ -139,7 +190,7 @@ fun ModernBuyAssetDialog(
         },
         confirmButton = {
             Button(
-                onClick = { onBuy(quantity.toIntOrNull() ?: 0) },
+                onClick = { onBuy(quantity) },
                 enabled = isValid,
                 colors = ButtonDefaults.buttonColors(
                     containerColor = PrimaryBlue,
@@ -149,7 +200,7 @@ fun ModernBuyAssetDialog(
                 modifier = Modifier.height(48.dp)
             ) {
                 Text(
-                    "Beli Sekarang", 
+                    "Buy now", 
                     fontWeight = FontWeight.Bold
                 )
             }
@@ -160,7 +211,7 @@ fun ModernBuyAssetDialog(
                 modifier = Modifier.height(48.dp)
             ) {
                 Text(
-                    "Batal", 
+                    "Cancel", 
                     color = TextSecondary,
                     fontWeight = FontWeight.Medium
                 )

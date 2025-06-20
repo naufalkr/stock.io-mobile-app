@@ -34,7 +34,7 @@ fun ModernPortfolioScreen(
     ) {
         item {
             Text(
-                "Portofolio Saya",
+                "My Portfolio",
                 style = MaterialTheme.typography.headlineMedium.copy(
                     fontWeight = FontWeight.Bold,
                     color = TextPrimary
@@ -60,7 +60,7 @@ fun ModernPortfolioScreen(
                 ) {
                     Column {
                         Text(
-                            "Total Portofolio",
+                            "Total Portfolio",
                             style = MaterialTheme.typography.bodyMedium.copy(
                                 color = Color.White.copy(alpha = 0.8f)
                             )

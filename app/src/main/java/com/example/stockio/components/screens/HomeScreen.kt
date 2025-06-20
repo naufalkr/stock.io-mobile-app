@@ -52,8 +52,8 @@ fun ModernHomeScreen(
 
         item {
             SectionHeader(
-                title = "Aset Populer",
-                actionText = "Lihat Semua",
+                title = "Popular Assets",
+                actionText = "View All",
                 onActionClick = onRefreshMarketData
             )
         }
@@ -67,8 +67,8 @@ fun ModernHomeScreen(
 
         item {
             SectionHeader(
-                title = "Portofolio Saya",
-                actionText = "Lihat Detail",
+                title = "My Portfolio",
+                actionText = "View Details",
                 onActionClick = { }
             )
         }

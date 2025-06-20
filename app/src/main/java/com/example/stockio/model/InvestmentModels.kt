@@ -16,7 +16,7 @@ data class InvestmentAsset(
     val priceChangePercent: Double,
     val icon: ImageVector,
     val color: Color,
-    val quantity: Int = 0,
+    val quantity: Double = 0.0, // Changed from Int to Double to support decimal quantities
     val category: AssetCategory = AssetCategory.IHSG,
     val description: String = "",
     val ipoDate: String = "",
@@ -62,7 +62,7 @@ enum class AssetCategory {
 }
 
 enum class Screen {
-    HOME, MARKET, PORTFOLIO, PROFILE, ASSET_DETAIL
+    HOME, MARKET, PORTFOLIO, NEWS, PROFILE, ASSET_DETAIL
 }
 
 // Color constants
@@ -91,8 +91,8 @@ fun getSampleMarketData(): List<InvestmentAsset> {
             icon = Icons.Filled.BarChart,
             color = PrimaryBlue,
             category = AssetCategory.IHSG,
-            description = "Bank Central Asia (BCA) adalah salah satu bank swasta terbesar di Indonesia yang menyediakan layanan perbankan ritel dan komersial.",
-            ipoDate = "31 Mei 2000",
+            description = "Bank Central Asia (BCA) is one of the largest private banks in Indonesia providing retail and commercial banking services.",
+            ipoDate = "May 31, 2000",
             marketCap = 1050000000000.0,
             volume = 25000000,
             priceHistory = generatePriceHistory(8750.0, 100)
@@ -106,8 +106,8 @@ fun getSampleMarketData(): List<InvestmentAsset> {
             icon = Icons.Filled.BarChart,
             color = Green40,
             category = AssetCategory.IHSG,
-            description = "Bank Rakyat Indonesia (BRI) adalah bank milik negara yang fokus pada segmen mikro dan UMKM dengan jaringan terluas di Indonesia.",
-            ipoDate = "10 November 2003",
+            description = "Bank Rakyat Indonesia (BRI) is a state-owned bank focusing on micro and SME segments with the widest network in Indonesia.",
+            ipoDate = "November 10, 2003",
             marketCap = 850000000000.0,
             volume = 35000000,
             priceHistory = generatePriceHistory(4520.0, 100)
@@ -121,8 +121,8 @@ fun getSampleMarketData(): List<InvestmentAsset> {
             icon = Icons.Filled.BarChart,
             color = Color(0xFFE53935),
             category = AssetCategory.IHSG,
-            description = "Telkom Indonesia adalah perusahaan telekomunikasi terbesar di Indonesia yang menyediakan layanan telekomunikasi dan digital.",
-            ipoDate = "14 November 1995",
+            description = "Telkom Indonesia is the largest telecommunications company in Indonesia providing telecommunications and digital services.",
+            ipoDate = "November 14, 1995",
             marketCap = 380000000000.0,
             volume = 20000000,
             priceHistory = generatePriceHistory(3890.0, 100)
@@ -136,8 +136,8 @@ fun getSampleMarketData(): List<InvestmentAsset> {
             icon = Icons.Filled.BarChart,
             color = Color(0xFF00AA5B),
             category = AssetCategory.IHSG,
-            description = "GoTo adalah platform ekosistem digital terbesar di Indonesia yang menggabungkan layanan Gojek dan Tokopedia.",
-            ipoDate = "11 April 2022",
+            description = "GoTo is Indonesia's largest digital ecosystem platform combining Gojek and Tokopedia services.",
+            ipoDate = "April 11, 2022",
             marketCap = 150000000000.0,
             volume = 50000000,
             priceHistory = generatePriceHistory(86.0, 100)
@@ -151,8 +151,8 @@ fun getSampleMarketData(): List<InvestmentAsset> {
             icon = Icons.Filled.BarChart,
             color = Color(0xFF0078D4),
             category = AssetCategory.IHSG,
-            description = "Unilever Indonesia adalah perusahaan consumer goods yang memproduksi produk-produk rumah tangga dan perawatan pribadi.",
-            ipoDate = "11 Januari 1982",
+            description = "Unilever Indonesia is a consumer goods company that produces household and personal care products.",
+            ipoDate = "January 11, 1982",
             marketCap = 340000000000.0,
             volume = 8000000,
             priceHistory = generatePriceHistory(2450.0, 100)
@@ -166,8 +166,8 @@ fun getSampleMarketData(): List<InvestmentAsset> {
             icon = Icons.Filled.BarChart,
             color = Color(0xFF795548),
             category = AssetCategory.IHSG,
-            description = "Adaro Energy adalah perusahaan pertambangan batu bara terbesar di Indonesia dengan operasi terintegrasi dari hulu hingga hilir.",
-            ipoDate = "16 Juli 2008",
+            description = "Adaro Energy is Indonesia's largest coal mining company with integrated operations from upstream to downstream.",
+            ipoDate = "July 16, 2008",
             marketCap = 520000000000.0,
             volume = 85000000,
             priceHistory = generatePriceHistory(2890.0, 100)
@@ -181,8 +181,8 @@ fun getSampleMarketData(): List<InvestmentAsset> {
             icon = Icons.Filled.BarChart,
             color = Color(0xFF1976D2),
             category = AssetCategory.IHSG,
-            description = "Bank Mandiri adalah bank terbesar di Indonesia yang menyediakan layanan perbankan universal untuk segmen retail dan korporasi.",
-            ipoDate = "14 Juli 2003",
+            description = "Bank Mandiri is Indonesia's largest bank providing universal banking services for retail and corporate segments.",
+            ipoDate = "July 14, 2003",
             marketCap = 1200000000000.0,
             volume = 22000000,
             priceHistory = generatePriceHistory(9150.0, 100)
@@ -196,8 +196,8 @@ fun getSampleMarketData(): List<InvestmentAsset> {
             icon = Icons.Filled.BarChart,
             color = Color(0xFF673AB7),
             category = AssetCategory.IHSG,
-            description = "Astra International adalah konglomerat terbesar di Indonesia dengan bisnis otomotif, alat berat, pertambangan, dan jasa keuangan.",
-            ipoDate = "4 April 1990",
+            description = "Astra International is Indonesia's largest conglomerate with automotive, heavy equipment, mining, and financial services businesses.",
+            ipoDate = "April 4, 1990",
             marketCap = 780000000000.0,
             volume = 18000000,
             priceHistory = generatePriceHistory(5100.0, 100)
@@ -211,8 +211,8 @@ fun getSampleMarketData(): List<InvestmentAsset> {
             icon = Icons.Filled.BarChart,
             color = Color(0xFFFF5722),
             category = AssetCategory.IHSG,
-            description = "Indofood CBP adalah perusahaan makanan dan minuman terbesar di Indonesia dengan brand terkenal seperti Indomie dan Chitato.",
-            ipoDate = "7 Oktober 2010",
+            description = "Indofood CBP is Indonesia's largest food and beverage company with famous brands like Indomie and Chitato.",
+            ipoDate = "October 7, 2010",
             marketCap = 890000000000.0,
             volume = 12000000,
             priceHistory = generatePriceHistory(9025.0, 100)
@@ -226,8 +226,8 @@ fun getSampleMarketData(): List<InvestmentAsset> {
             icon = Icons.Filled.BarChart,
             color = Color(0xFF009688),
             category = AssetCategory.IHSG,
-            description = "Kalbe Farma adalah perusahaan farmasi terbesar di Indonesia yang memproduksi obat-obatan dan produk kesehatan.",
-            ipoDate = "30 Juli 1991",
+            description = "Kalbe Farma is Indonesia's largest pharmaceutical company producing medicines and health products.",
+            ipoDate = "July 30, 1991",
             marketCap = 290000000000.0,
             volume = 28000000,
             priceHistory = generatePriceHistory(1555.0, 100)
@@ -241,8 +241,8 @@ fun getSampleMarketData(): List<InvestmentAsset> {
             icon = Icons.Filled.BarChart,
             color = Color(0xFFD32F2F),
             category = AssetCategory.IHSG,
-            description = "Gudang Garam adalah produsen rokok kretek terbesar di Indonesia dengan berbagai merek rokok populer.",
-            ipoDate = "27 Agustus 1990",
+            description = "Gudang Garam is Indonesia's largest kretek cigarette producer with various popular cigarette brands.",
+            ipoDate = "August 27, 1990",
             marketCap = 420000000000.0,
             volume = 3500000,
             priceHistory = generatePriceHistory(18100.0, 100)
@@ -256,8 +256,8 @@ fun getSampleMarketData(): List<InvestmentAsset> {
             icon = Icons.Filled.BarChart,
             color = Color(0xFF607D8B),
             category = AssetCategory.IHSG,
-            description = "Indocement adalah produsen semen terbesar kedua di Indonesia dengan kapasitas produksi yang tersebar di berbagai wilayah.",
-            ipoDate = "5 Desember 1989",
+            description = "Indocement is Indonesia's second largest cement producer with production capacity spread across various regions.",
+            ipoDate = "December 5, 1989",
             marketCap = 650000000000.0,
             volume = 8500000,
             priceHistory = generatePriceHistory(9400.0, 100)
@@ -271,8 +271,8 @@ fun getSampleMarketData(): List<InvestmentAsset> {
             icon = Icons.Filled.BarChart,
             color = Color(0xFF4CAF50),
             category = AssetCategory.IHSG,
-            description = "PGN adalah perusahaan transportasi dan distribusi gas bumi terbesar di Indonesia dengan jaringan pipa gas yang luas.",
-            ipoDate = "15 Desember 2003",
+            description = "PGN is Indonesia's largest natural gas transportation and distribution company with extensive gas pipeline network.",
+            ipoDate = "December 15, 2003",
             marketCap = 275000000000.0,
             volume = 45000000,
             priceHistory = generatePriceHistory(1350.0, 100)
@@ -286,8 +286,8 @@ fun getSampleMarketData(): List<InvestmentAsset> {
             icon = Icons.Filled.BarChart,
             color = Color(0xFF9C27B0),
             category = AssetCategory.IHSG,
-            description = "XL Axiata adalah operator telekomunikasi seluler terbesar kedua di Indonesia yang menyediakan layanan voice dan data.",
-            ipoDate = "29 September 2005",
+            description = "XL Axiata is Indonesia's second largest mobile telecommunications operator providing voice and data services.",
+            ipoDate = "September 29, 2005",
             marketCap = 180000000000.0,
             volume = 32000000,
             priceHistory = generatePriceHistory(2750.0, 100)
@@ -303,8 +303,8 @@ fun getSampleMarketData(): List<InvestmentAsset> {
             icon = Icons.Filled.Star,
             color = Orange40,
             category = AssetCategory.CRYPTO,
-            description = "Bitcoin adalah cryptocurrency pertama dan terbesar di dunia yang beroperasi pada teknologi blockchain terdesentralisasi.",
-            ipoDate = "3 Januari 2009",
+            description = "Bitcoin is the world's first and largest cryptocurrency operating on decentralized blockchain technology.",
+            ipoDate = "January 3, 2009",
             marketCap = 14500000000000.0,
             volume = 25000000000,
             priceHistory = generatePriceHistory(750000000.0, 100)
@@ -318,8 +318,8 @@ fun getSampleMarketData(): List<InvestmentAsset> {
             icon = Icons.Filled.Star,
             color = Color(0xFF627EEA),
             category = AssetCategory.CRYPTO,
-            description = "Ethereum adalah platform blockchain yang memungkinkan smart contracts dan aplikasi terdesentralisasi (DApps).",
-            ipoDate = "30 Juli 2015",
+            description = "Ethereum is a blockchain platform that enables smart contracts and decentralized applications (DApps).",
+            ipoDate = "July 30, 2015",
             marketCap = 5800000000000.0,
             volume = 18000000000,
             priceHistory = generatePriceHistory(48000000.0, 100)
@@ -333,8 +333,8 @@ fun getSampleMarketData(): List<InvestmentAsset> {
             icon = Icons.Filled.Star,
             color = Color(0xFFF3BA2F),
             category = AssetCategory.CRYPTO,
-            description = "Binance Coin adalah token utilitas yang digunakan di ekosistem Binance, exchange cryptocurrency terbesar di dunia.",
-            ipoDate = "25 Juli 2017",
+            description = "Binance Coin is a utility token used in the Binance ecosystem, the world's largest cryptocurrency exchange.",
+            ipoDate = "July 25, 2017",
             marketCap = 630000000000.0,
             volume = 8500000000,
             priceHistory = generatePriceHistory(4200000.0, 100)
@@ -348,8 +348,8 @@ fun getSampleMarketData(): List<InvestmentAsset> {
             icon = Icons.Filled.Star,
             color = Color(0xFF0033AD),
             category = AssetCategory.CRYPTO,
-            description = "Cardano adalah blockchain proof-of-stake yang berfokus pada sustainability dan peer-reviewed research.",
-            ipoDate = "1 Oktober 2017",
+            description = "Cardano is a proof-of-stake blockchain that focuses on sustainability and peer-reviewed research.",
+            ipoDate = "October 1, 2017",
             marketCap = 295000000000.0,
             volume = 3200000000,
             priceHistory = generatePriceHistory(8500.0, 100)
@@ -363,8 +363,8 @@ fun getSampleMarketData(): List<InvestmentAsset> {
             icon = Icons.Filled.Star,
             color = Color(0xFF9945FF),
             category = AssetCategory.CRYPTO,
-            description = "Solana adalah blockchain berkecepatan tinggi yang mendukung smart contracts dan DApps dengan biaya transaksi rendah.",
-            ipoDate = "16 Maret 2020",
+            description = "Solana is a high-speed blockchain that supports smart contracts and DApps with low transaction costs.",
+            ipoDate = "March 16, 2020",
             marketCap = 1350000000000.0,
             volume = 12000000000,
             priceHistory = generatePriceHistory(2850000.0, 100)
@@ -383,4 +383,30 @@ fun generatePriceHistory(currentPrice: Double, days: Int): List<Double> {
     }
     
     return history
+}
+
+data class User(
+    val id: String,
+    val name: String,
+    val email: String,
+    val profileImageUrl: String? = null,
+    val accountType: String = "Premium",
+    val joinDate: String,
+    val totalInvestment: Double = 0.0,
+    val totalProfit: Double = 0.0,
+    val riskProfile: String = "Moderate"
+)
+
+fun getSampleUser(): User {
+    return User(
+        id = "user_001",
+        name = "Arthur Morgan",
+        email = "arthur@gmail.com",
+        profileImageUrl = null,
+        accountType = "Premium",
+        joinDate = "January 2024",
+        totalInvestment = 10000000.0,
+        totalProfit = 2500000.0,
+        riskProfile = "Moderate"
+    )
 }
